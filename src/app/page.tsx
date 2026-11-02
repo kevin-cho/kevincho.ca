@@ -1,6 +1,8 @@
 import Image from "next/image";
 import { FaEnvelopeSquare, FaGithubSquare, FaLinkedin } from "react-icons/fa";
 import { AppList } from "@/components/app-list";
+import { KonamiCode } from "@/components/konami-code";
+import { KonamiHint } from "@/components/konami-hint";
 import { ResumeSquareIcon } from "@/components/resume-square-icon";
 
 const links = [
@@ -45,6 +47,8 @@ export default function Home() {
         </ul>
       </nav>
       <AppList />
+      <KonamiHint />
+      <KonamiCode />
     </main>
   );
 }
