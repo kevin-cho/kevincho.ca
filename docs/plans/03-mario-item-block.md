@@ -1,6 +1,6 @@
 # Plan 03: Bring back the mario-item-block easter egg
 
-**Status:** 🟡 All steps built (Step 4 not yet committed); not pushed — Vercel build of the submodule still to check · **Branch:** `mario-item-block` (from `master`) · **Started:** 2026-11-02
+**Status:** 🟡 All steps built (Step 5 not yet committed); not pushed — Vercel build of the submodule still to check · **Branch:** `mario-item-block` (from `master`) · **Started:** 2026-11-02
 
 ## Context
 The old jQuery site had a Konami-code easter egg: typing ↑↑↓↓←→←→BA on the home page sent you to `mario-item-block/index.html`, a tiny jQuery game from the [`mario-item-block`](https://github.com/kevin-cho/mario-item-block) repo (click to make Mario jump, hit the item block, and get a random item). The page also showed a row of arrow/B/A glyphs as a hint.
@@ -56,7 +56,7 @@ Each step is reviewed and approved on its own before it's built.
 - **Verify:** screenshots in light and dark mode and at mobile width; the hint opens the game; lint passes. Dev server left running for preview.
 - **Result (2026-11-02):** Built as a link (the recommended option; Kevin approved the step without choosing, so it can still change to decorative). `src/components/konami-hint.tsx` is a server component placed under the links/app list in `src/app/page.tsx`: small `text-muted-foreground` arrows plus "B A", `hover:text-foreground`, a focus outline, and a `title` showing the sequence. Checked in the browser: subtle and readable in light and dark mode; at 375px wide it fits (175×24px, no horizontal scroll); its accessible name is "Mario item block game"; clicking it opens `/mario-item-block/index.html`. Lint and `tsc --noEmit` pass.
 
-## Step 4: Keep the URL as `/mario-item-block` ✅ Done
+## Step 4: Keep the URL as `/mario-item-block` ✅ Done (commit `2b0ae26`)
 - **Requirement:** opening the game (Konami code, hint, or typing the address) shows `/mario-item-block` in the address bar, not `/mario-item-block/index.html`.
 - **Why:** Step 1's redirect changes the visible URL. A rewrite alone can't fix that, because the game's relative paths (`css/…`, `images/…`) would resolve at the site root and break (and `/images/` would collide with the site's own folder).
 - **How:**
@@ -69,6 +69,13 @@ Each step is reviewed and approved on its own before it's built.
 - **Result (2026-11-02):** Built as planned. One addition: in dark mode the iframe first showed a white frame (the game page's 8px body margin). Browsers paint an embedded page's background opaque when its color scheme differs from the parent's, so the iframe now has `color-scheme: light` (`scheme-light`) to match the game page and stay transparent. Checked in the browser: the address bar stays `/mario-item-block` (title "Mario Item Block · Kevin Cho"); the game plays inside the iframe (jump shows an item, release stands); the Konami code and the hint both land on `/mario-item-block`; light and dark mode look right; at 375px wide it fits with no horizontal scroll. Lint (no override needed now), `tsc --noEmit` and `next build` pass; the build lists `/mario-item-block` as static. The production server (`next start`) returns 200 for the page and for `/mario-item-block/index.html`, its JS and images, and the site's own `/images/kevin.png`, so the page and the static folder coexist.
 - **Notes:** with Next 16's `cacheComponents`, the game page stays in the DOM (hidden, `display: none`) after navigating back home, for fast back/forward. The old `/mario-item-block/index.html` URL still works if typed directly. On phones, a tap fires the game's mouse down and up almost together, so Mario's jump is very brief; that's the game's own behaviour (it only handles mouse events).
 
+## Step 5: Back arrow on the game page ✅ Done
+- **Requirement:** a back arrow at the top left of `/mario-item-block` that goes to the home page.
+- **Why:** the game page has no way back except the browser's back button (and none at all if you arrived by typing the address).
+- **How:** in `src/app/mario-item-block/page.tsx`, a `next/link` `<Link href="/">` with a `FaArrowLeft` icon (react-icons, as elsewhere), `aria-label` and `title` "Back to home". It's placed `absolute` at the top left, lined up with the theme toggle in the root layout's header (same `p-4` offset, `size-9`, round, `text-muted-foreground`, `hover:bg-muted hover:text-foreground`, focus outline), so the two look like a pair. Links to `/` rather than going back in history, so it works even when the page was opened directly. The root layout's header stays as it is, since only this page needs the arrow.
+- **Verify:** the arrow lines up with the theme toggle; clicking it lands on `/`; screen readers name it "Back to home"; light/dark and mobile width look right; lint and `tsc --noEmit` pass.
+- **Result (2026-11-02):** Built as planned. Checked in the browser: the arrow and the theme toggle are both 36×36 and 16px from the top, mirrored left and right; light and dark mode look right; at 375px wide there's no horizontal scroll; its accessible name is "Back to home"; clicking it lands on `/`. Lint and `tsc --noEmit` pass.
+
 ---
 
 ## Change log
@@ -79,3 +86,5 @@ Each step is reviewed and approved on its own before it's built.
 - **2026-11-02** — Step 3 done: `KonamiHint` link on the home page; verified in light/dark and at mobile width. Remaining: push and check that Vercel's build includes the submodule.
 - **2026-11-02** — Step 4 added: Kevin wants the game's URL to stay `/mario-item-block` (Step 1's redirect showed `/index.html`). Chose a Next.js page with an iframe.
 - **2026-11-02** — Step 4 done: game page at `/mario-item-block` with an iframe; redirect removed; Konami code uses the router and the hint uses `<Link>`. Verified in dev and with `next start`.
+- **2026-11-02** — Step 5 added: back arrow on the game page, at Kevin's request.
+- **2026-11-02** — Step 5 done: back arrow on the game page; verified in the browser.
