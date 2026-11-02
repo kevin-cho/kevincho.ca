@@ -1,6 +1,6 @@
 # Plan 03: Bring back the mario-item-block easter egg
 
-**Status:** 🟡 In progress — Step 1 done (not yet committed); Step 2 awaiting approval · **Branch:** `mario-item-block` (from `master`) · **Started:** 2026-11-02
+**Status:** 🟡 In progress — Steps 1–2 done (Step 2 not yet committed); Step 3 awaiting approval · **Branch:** `mario-item-block` (from `master`) · **Started:** 2026-11-02
 
 ## Context
 The old jQuery site had a Konami-code easter egg: typing ↑↑↓↓←→←→BA on the home page sent you to `mario-item-block/index.html`, a tiny jQuery game from the [`mario-item-block`](https://github.com/kevin-cho/mario-item-block) repo (click to make Mario jump, hit the item block, and get a random item). The page also showed a row of arrow/B/A glyphs as a hint.
@@ -29,7 +29,7 @@ Each step is reviewed and approved on its own before it's built.
 
 ---
 
-## Step 1: Serve the game at `/mario-item-block` ✅ Done
+## Step 1: Serve the game at `/mario-item-block` ✅ Done (commit `982d710`)
 - **Requirement:** `/mario-item-block` shows the working game locally and on Vercel.
 - **Why:** Next.js only serves static files from `public/`, so the submodule has to live there. It must load at `/mario-item-block/index.html` so its relative asset paths resolve.
 - **How:**
@@ -41,11 +41,12 @@ Each step is reviewed and approved on its own before it's built.
 - **Verify:** in the dev server, `/mario-item-block` redirects, images load with no 404s, clicking makes Mario jump and shows an item; `npm run lint` and `npm run build` pass. The Vercel build is checked after a push.
 - **Result (2026-11-02):** Submodule checked out at `7b45c9d` and moved to `public/mario-item-block` (`.gitmodules` path updated). In the dev server, `/mario-item-block` returns 307 → `/mario-item-block/index.html`; jQuery loads; the HTML, CSS, JS and every image return 200. Mouse down shows Mario jumping with an item (a coin) above the block; mouse up returns him to standing. `npm run lint` is clean and `next build` succeeds. Still to check: the Vercel build clones the submodule (after the next push).
 
-## Step 2: Konami code on the home page ⬜ Not started
+## Step 2: Konami code on the home page ✅ Done
 - **Requirement:** typing ↑↑↓↓←→←→BA on the home page goes to the game.
 - **Why:** restores the old `js/konami.js` behaviour without jQuery.
 - **How:** new client component `src/components/konami-code.tsx` that renders nothing. A `useEffect` adds a `keydown` listener (removed on unmount) comparing `e.key` (lower-cased, so `B`/`b` both count) against `ArrowUp ArrowUp ArrowDown ArrowDown ArrowLeft ArrowRight ArrowLeft ArrowRight b a`. A wrong key resets progress (to 1 if the wrong key is itself `ArrowUp`). On completion, `window.location.assign("/mario-item-block")` — a full page load, since the game is a static file, not a Next.js route. Mounted in `src/app/page.tsx`.
 - **Verify:** in the browser preview, the key sequence navigates to the game; a wrong key mid-sequence doesn't; lint and type checks pass.
+- **Result (2026-11-02):** In the browser preview, ↑↑↓↓←→ x ←→BA (wrong key in the middle) stayed on the home page; ↑↑↓↓←→←→ba opened `/mario-item-block/index.html`, and so did the same with capital B A. No console errors; `tsc --noEmit` passes. Lint flagged `window.location.assign` (rule `no-location-assign-relative-destination`, which assumes the target is a Next.js page). Since the game is a static file that needs a full page load, that one line has an `eslint-disable-next-line` with a comment; lint is now clean.
 
 ## Step 3: Subtle hint on the home page ⬜ Not started
 - **Requirement:** a small, muted row of ↑↑↓↓←→←→ B A on the home page, like the old site.
@@ -59,3 +60,4 @@ Each step is reviewed and approved on its own before it's built.
 - **2026-11-02** — Plan created after reviewing the submodule (read from GitHub, since it isn't checked out) and the old site's `konami.js` and hint. Decided: serve the submodule statically from `public/`; Konami code + hint.
 - **2026-11-02** — Step 1 done: game served from `public/mario-item-block` with a redirect from `/mario-item-block`; verified locally.
 - **2026-11-02** — Work moved to a new branch, `mario-item-block`, created from `master`.
+- **2026-11-02** — Step 2 done: `KonamiCode` component on the home page; verified in the browser.
