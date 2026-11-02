@@ -1,6 +1,6 @@
 # Plan 03: Bring back the mario-item-block easter egg
 
-**Status:** 🟡 All steps done, pushed, and verified on the Vercel preview; ready to merge into `master` · **Branch:** `mario-item-block` (from `master`) · **Started:** 2026-11-02
+**Status:** ✅ Done (2026-11-02) — **live on kevincho.ca/mario-item-block** (PR #16, merge `82ee308`) · **Branch:** `mario-item-block` (merged into `master` and deleted) · **Started:** 2026-11-02
 
 ## Context
 The old jQuery site had a Konami-code easter egg: typing ↑↑↓↓←→←→BA on the home page sent you to `mario-item-block/index.html`, a tiny jQuery game from the [`mario-item-block`](https://github.com/kevin-cho/mario-item-block) repo (click to make Mario jump, hit the item block, and get a random item). The page also showed a row of arrow/B/A glyphs as a hint.
@@ -90,3 +90,4 @@ Each step is reviewed and approved on its own before it's built.
 - **2026-11-02** — Step 5 done: back arrow on the game page; verified in the browser.
 - **2026-11-02** — Pushed `mario-item-block` to GitHub. Vercel's preview build for `5e9553f` succeeded. Still to confirm that the preview serves `/mario-item-block/` files (that is, that Vercel cloned the submodule); the preview is behind Vercel login.
 - **2026-11-02** — Verified on the Vercel preview (`kevincho-portal-git-mario-item-block-kevin-cho.vercel.app`, after Kevin signed in to Vercel in the browser pane): `/mario-item-block` shows the game in the iframe with jQuery and all images loaded, so Vercel cloned the submodule; the jump shows an item; the back arrow is there; the Konami code on the home page lands on `/mario-item-block`. Remaining: merge into `master`.
+- **2026-11-02** — Installed GitHub CLI (`gh` 2.103.3) from GitHub's official installer (Homebrew couldn't build it: Xcode 14.3.1 too old on this Intel Mac). Opened PR #16; both checks passed; merged with a merge commit (`82ee308`) and deleted the branch. Vercel's production deploy succeeded; on `https://kevincho.ca` the Konami code opens `/mario-item-block`, the game loads with jQuery and all images, and the hint and back arrow are there. Plan 03 complete.
