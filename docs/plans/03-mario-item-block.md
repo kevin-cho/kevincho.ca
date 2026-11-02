@@ -1,6 +1,6 @@
 # Plan 03: Bring back the mario-item-block easter egg
 
-**Status:** 🟡 All steps built (Step 5 not yet committed); not pushed — Vercel build of the submodule still to check · **Branch:** `mario-item-block` (from `master`) · **Started:** 2026-11-02
+**Status:** 🟡 All steps done, pushed, and verified on the Vercel preview; ready to merge into `master` · **Branch:** `mario-item-block` (from `master`) · **Started:** 2026-11-02
 
 ## Context
 The old jQuery site had a Konami-code easter egg: typing ↑↑↓↓←→←→BA on the home page sent you to `mario-item-block/index.html`, a tiny jQuery game from the [`mario-item-block`](https://github.com/kevin-cho/mario-item-block) repo (click to make Mario jump, hit the item block, and get a random item). The page also showed a row of arrow/B/A glyphs as a hint.
@@ -40,7 +40,7 @@ Each step is reviewed and approved on its own before it's built.
   4. `eslint.config.mjs`: add `public/mario-item-block/**` to `globalIgnores` so `npm run lint` skips the jQuery code.
   5. `README.md`: note running `git submodule update --init` after cloning, and list the game under Project layout.
 - **Verify:** in the dev server, `/mario-item-block` redirects, images load with no 404s, clicking makes Mario jump and shows an item; `npm run lint` and `npm run build` pass. The Vercel build is checked after a push.
-- **Result (2026-11-02):** Submodule checked out at `7b45c9d` and moved to `public/mario-item-block` (`.gitmodules` path updated). In the dev server, `/mario-item-block` returns 307 → `/mario-item-block/index.html`; jQuery loads; the HTML, CSS, JS and every image return 200. Mouse down shows Mario jumping with an item (a coin) above the block; mouse up returns him to standing. `npm run lint` is clean and `next build` succeeds. Still to check: the Vercel build clones the submodule (after the next push).
+- **Result (2026-11-02):** Submodule checked out at `7b45c9d` and moved to `public/mario-item-block` (`.gitmodules` path updated). In the dev server, `/mario-item-block` returns 307 → `/mario-item-block/index.html`; jQuery loads; the HTML, CSS, JS and every image return 200. Mouse down shows Mario jumping with an item (a coin) above the block; mouse up returns him to standing. `npm run lint` is clean and `next build` succeeds. Vercel clones the submodule: confirmed on the branch preview (see change log). (Step 4 later replaced the redirect.)
 
 ## Step 2: Konami code on the home page ✅ Done (commit `c5e1522`)
 - **Requirement:** typing ↑↑↓↓←→←→BA on the home page goes to the game.
@@ -69,7 +69,7 @@ Each step is reviewed and approved on its own before it's built.
 - **Result (2026-11-02):** Built as planned. One addition: in dark mode the iframe first showed a white frame (the game page's 8px body margin). Browsers paint an embedded page's background opaque when its color scheme differs from the parent's, so the iframe now has `color-scheme: light` (`scheme-light`) to match the game page and stay transparent. Checked in the browser: the address bar stays `/mario-item-block` (title "Mario Item Block · Kevin Cho"); the game plays inside the iframe (jump shows an item, release stands); the Konami code and the hint both land on `/mario-item-block`; light and dark mode look right; at 375px wide it fits with no horizontal scroll. Lint (no override needed now), `tsc --noEmit` and `next build` pass; the build lists `/mario-item-block` as static. The production server (`next start`) returns 200 for the page and for `/mario-item-block/index.html`, its JS and images, and the site's own `/images/kevin.png`, so the page and the static folder coexist.
 - **Notes:** with Next 16's `cacheComponents`, the game page stays in the DOM (hidden, `display: none`) after navigating back home, for fast back/forward. The old `/mario-item-block/index.html` URL still works if typed directly. On phones, a tap fires the game's mouse down and up almost together, so Mario's jump is very brief; that's the game's own behaviour (it only handles mouse events).
 
-## Step 5: Back arrow on the game page ✅ Done
+## Step 5: Back arrow on the game page ✅ Done (commit `5e9553f`)
 - **Requirement:** a back arrow at the top left of `/mario-item-block` that goes to the home page.
 - **Why:** the game page has no way back except the browser's back button (and none at all if you arrived by typing the address).
 - **How:** in `src/app/mario-item-block/page.tsx`, a `next/link` `<Link href="/">` with a `FaArrowLeft` icon (react-icons, as elsewhere), `aria-label` and `title` "Back to home". It's placed `absolute` at the top left, lined up with the theme toggle in the root layout's header (same `p-4` offset, `size-9`, round, `text-muted-foreground`, `hover:bg-muted hover:text-foreground`, focus outline), so the two look like a pair. Links to `/` rather than going back in history, so it works even when the page was opened directly. The root layout's header stays as it is, since only this page needs the arrow.
@@ -88,3 +88,5 @@ Each step is reviewed and approved on its own before it's built.
 - **2026-11-02** — Step 4 done: game page at `/mario-item-block` with an iframe; redirect removed; Konami code uses the router and the hint uses `<Link>`. Verified in dev and with `next start`.
 - **2026-11-02** — Step 5 added: back arrow on the game page, at Kevin's request.
 - **2026-11-02** — Step 5 done: back arrow on the game page; verified in the browser.
+- **2026-11-02** — Pushed `mario-item-block` to GitHub. Vercel's preview build for `5e9553f` succeeded. Still to confirm that the preview serves `/mario-item-block/` files (that is, that Vercel cloned the submodule); the preview is behind Vercel login.
+- **2026-11-02** — Verified on the Vercel preview (`kevincho-portal-git-mario-item-block-kevin-cho.vercel.app`, after Kevin signed in to Vercel in the browser pane): `/mario-item-block` shows the game in the iframe with jQuery and all images loaded, so Vercel cloned the submodule; the jump shows an item; the back arrow is there; the Konami code on the home page lands on `/mario-item-block`. Remaining: merge into `master`.
