@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // mario-item-block git submodule (third-party style jQuery code)
+    "public/mario-item-block/**",
   ]),
 ]);
 
