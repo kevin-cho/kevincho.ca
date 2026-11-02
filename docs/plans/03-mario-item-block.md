@@ -1,6 +1,6 @@
 # Plan 03: Bring back the mario-item-block easter egg
 
-**Status:** 🟡 In progress — Steps 1–3 built (Step 3 not yet committed); Step 4 awaiting approval · not pushed · **Branch:** `mario-item-block` (from `master`) · **Started:** 2026-11-02
+**Status:** 🟡 All steps built (Step 4 not yet committed); not pushed — Vercel build of the submodule still to check · **Branch:** `mario-item-block` (from `master`) · **Started:** 2026-11-02
 
 ## Context
 The old jQuery site had a Konami-code easter egg: typing ↑↑↓↓←→←→BA on the home page sent you to `mario-item-block/index.html`, a tiny jQuery game from the [`mario-item-block`](https://github.com/kevin-cho/mario-item-block) repo (click to make Mario jump, hit the item block, and get a random item). The page also showed a row of arrow/B/A glyphs as a hint.
@@ -49,14 +49,14 @@ Each step is reviewed and approved on its own before it's built.
 - **Verify:** in the browser preview, the key sequence navigates to the game; a wrong key mid-sequence doesn't; lint and type checks pass.
 - **Result (2026-11-02):** In the browser preview, ↑↑↓↓←→ x ←→BA (wrong key in the middle) stayed on the home page; ↑↑↓↓←→←→ba opened `/mario-item-block/index.html`, and so did the same with capital B A. No console errors; `tsc --noEmit` passes. Lint flagged `window.location.assign` (rule `no-location-assign-relative-destination`, which assumes the target is a Next.js page). Since the game is a static file that needs a full page load, that one line has an `eslint-disable-next-line` with a comment; lint is now clean.
 
-## Step 3: Subtle hint on the home page ✅ Done
+## Step 3: Subtle hint on the home page ✅ Done (commit `5ccf17d`)
 - **Requirement:** a small, muted row of ↑↑↓↓←→←→ B A on the home page, like the old site.
 - **Why:** makes the easter egg discoverable; on phones it's the only way in.
 - **How:** new component `src/components/konami-hint.tsx` using `react-icons` arrows (already a dependency) plus "B" "A" text, styled with the semantic tokens (`text-muted-foreground`, hover `text-foreground`). Recommended: the whole row is a link to `/mario-item-block` with `aria-label="Mario item block game"` and `aria-hidden` glyphs, so it's tappable and accessible. (To confirm at this step: link vs purely decorative.)
 - **Verify:** screenshots in light and dark mode and at mobile width; the hint opens the game; lint passes. Dev server left running for preview.
 - **Result (2026-11-02):** Built as a link (the recommended option; Kevin approved the step without choosing, so it can still change to decorative). `src/components/konami-hint.tsx` is a server component placed under the links/app list in `src/app/page.tsx`: small `text-muted-foreground` arrows plus "B A", `hover:text-foreground`, a focus outline, and a `title` showing the sequence. Checked in the browser: subtle and readable in light and dark mode; at 375px wide it fits (175×24px, no horizontal scroll); its accessible name is "Mario item block game"; clicking it opens `/mario-item-block/index.html`. Lint and `tsc --noEmit` pass.
 
-## Step 4: Keep the URL as `/mario-item-block` ⏳ Awaiting approval
+## Step 4: Keep the URL as `/mario-item-block` ✅ Done
 - **Requirement:** opening the game (Konami code, hint, or typing the address) shows `/mario-item-block` in the address bar, not `/mario-item-block/index.html`.
 - **Why:** Step 1's redirect changes the visible URL. A rewrite alone can't fix that, because the game's relative paths (`css/…`, `images/…`) would resolve at the site root and break (and `/images/` would collide with the site's own folder).
 - **How:**
@@ -66,6 +66,8 @@ Each step is reviewed and approved on its own before it's built.
   4. `src/components/konami-hint.tsx`: use `next/link` `<Link>` instead of `<a>` for client-side navigation.
   5. `README.md`: update the Project layout line to mention the page.
 - **Verify:** `/mario-item-block` shows the game with the URL unchanged; the game plays inside the iframe; the Konami code and the hint both land on `/mario-item-block`; light/dark and mobile width look right; lint, `tsc --noEmit` and `next build` pass (build lists `/mario-item-block`).
+- **Result (2026-11-02):** Built as planned. One addition: in dark mode the iframe first showed a white frame (the game page's 8px body margin). Browsers paint an embedded page's background opaque when its color scheme differs from the parent's, so the iframe now has `color-scheme: light` (`scheme-light`) to match the game page and stay transparent. Checked in the browser: the address bar stays `/mario-item-block` (title "Mario Item Block · Kevin Cho"); the game plays inside the iframe (jump shows an item, release stands); the Konami code and the hint both land on `/mario-item-block`; light and dark mode look right; at 375px wide it fits with no horizontal scroll. Lint (no override needed now), `tsc --noEmit` and `next build` pass; the build lists `/mario-item-block` as static. The production server (`next start`) returns 200 for the page and for `/mario-item-block/index.html`, its JS and images, and the site's own `/images/kevin.png`, so the page and the static folder coexist.
+- **Notes:** with Next 16's `cacheComponents`, the game page stays in the DOM (hidden, `display: none`) after navigating back home, for fast back/forward. The old `/mario-item-block/index.html` URL still works if typed directly. On phones, a tap fires the game's mouse down and up almost together, so Mario's jump is very brief; that's the game's own behaviour (it only handles mouse events).
 
 ---
 
@@ -76,3 +78,4 @@ Each step is reviewed and approved on its own before it's built.
 - **2026-11-02** — Step 2 done: `KonamiCode` component on the home page; verified in the browser.
 - **2026-11-02** — Step 3 done: `KonamiHint` link on the home page; verified in light/dark and at mobile width. Remaining: push and check that Vercel's build includes the submodule.
 - **2026-11-02** — Step 4 added: Kevin wants the game's URL to stay `/mario-item-block` (Step 1's redirect showed `/index.html`). Chose a Next.js page with an iframe.
+- **2026-11-02** — Step 4 done: game page at `/mario-item-block` with an iframe; redirect removed; Konami code uses the router and the hint uses `<Link>`. Verified in dev and with `next start`.

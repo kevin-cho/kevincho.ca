@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { FaArrowDown, FaArrowLeft, FaArrowRight, FaArrowUp } from "react-icons/fa";
 
 const arrows = [FaArrowUp, FaArrowUp, FaArrowDown, FaArrowDown, FaArrowLeft, FaArrowRight, FaArrowLeft, FaArrowRight];
@@ -8,7 +9,7 @@ const arrows = [FaArrowUp, FaArrowUp, FaArrowDown, FaArrowDown, FaArrowLeft, FaA
  */
 export function KonamiHint() {
   return (
-    <a
+    <Link
       href="/mario-item-block"
       aria-label="Mario item block game"
       title="↑ ↑ ↓ ↓ ← → ← → B A"
@@ -19,6 +20,6 @@ export function KonamiHint() {
       ))}
       <span aria-hidden>B</span>
       <span aria-hidden>A</span>
-    </a>
+    </Link>
   );
 }

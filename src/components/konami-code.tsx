@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 // ↑ ↑ ↓ ↓ ← → ← → B A
@@ -18,6 +19,8 @@ const sequence = [
 
 /** Easter egg: typing the Konami code opens the Mario item block game. Renders nothing. */
 export function KonamiCode() {
+  const router = useRouter();
+
   useEffect(() => {
     let index = 0;
 
@@ -31,15 +34,13 @@ export function KonamiCode() {
       }
       if (index === sequence.length) {
         index = 0;
-        // Full page load: the game is a static file in public/, not a Next.js route
-        // eslint-disable-next-line @next/next/no-location-assign-relative-destination
-        window.location.assign("/mario-item-block");
+        router.push("/mario-item-block");
       }
     }
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
+  }, [router]);
 
   return null;
 }

@@ -43,5 +43,5 @@ If a CSS change doesn't show up in the dev server, stop it, delete the `.next/` 
 - `src/components/` — UI pieces (theme toggle, app list, icons)
 - `src/data/apps.ts` — the apps listed on the home page
 - `public/` — static files (resume PDF, photo)
-- `public/mario-item-block/` — git submodule: the [Mario item block](https://github.com/kevin-cho/mario-item-block) game, served at `/mario-item-block`
+- `public/mario-item-block/` — git submodule: the [Mario item block](https://github.com/kevin-cho/mario-item-block) game, embedded by the page at `src/app/mario-item-block/` (`/mario-item-block`)
 - `docs/plans/` — step-by-step plans and their change logs
