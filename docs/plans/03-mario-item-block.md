@@ -1,6 +1,6 @@
 # Plan 03: Bring back the mario-item-block easter egg
 
-**Status:** 🟡 In progress — Steps 1–2 done (Step 2 not yet committed); Step 3 awaiting approval · **Branch:** `mario-item-block` (from `master`) · **Started:** 2026-11-02
+**Status:** 🟡 In progress — Steps 1–3 built (Step 3 not yet committed); Step 4 awaiting approval · not pushed · **Branch:** `mario-item-block` (from `master`) · **Started:** 2026-11-02
 
 ## Context
 The old jQuery site had a Konami-code easter egg: typing ↑↑↓↓←→←→BA on the home page sent you to `mario-item-block/index.html`, a tiny jQuery game from the [`mario-item-block`](https://github.com/kevin-cho/mario-item-block) repo (click to make Mario jump, hit the item block, and get a random item). The page also showed a row of arrow/B/A glyphs as a hint.
@@ -23,6 +23,7 @@ Every asset path is relative (`css/…`, `js/…`, `images/…`), so the page ha
 | Decision | Choice | Why |
 |---|---|---|
 | How the game is served | **Move the submodule to `public/mario-item-block`** and serve its files unchanged | Smallest change; the game's own repo stays the source of truth; relative asset paths keep working. Vercel clones public HTTPS submodules. Considered: porting it to a React page (duplicates code, drops the separate repo) and a separate Vercel zone (a lot of setup for a static page). |
+| Game URL | **`/mario-item-block`, via a Next.js page that embeds the game in an iframe** (Step 4) | Kevin wants the address bar to show `/mario-item-block`, not `/index.html`. A plain rewrite breaks the game's relative asset paths. The iframe keeps the game repo untouched and puts the site's header and theme toggle around it. Considered: a `<base>` tag in the game repo (needs a commit there and a submodule bump) and a trailing-slash URL (`skipTrailingSlashRedirect`, which affects the whole site). Decided 2026-11-02. |
 | How visitors reach it | **Konami code + a subtle hint** on the home page | Restores the old easter egg; the hint makes it discoverable and (as a link) reachable on phones, which have no arrow keys. |
 
 Each step is reviewed and approved on its own before it's built.
@@ -41,18 +42,30 @@ Each step is reviewed and approved on its own before it's built.
 - **Verify:** in the dev server, `/mario-item-block` redirects, images load with no 404s, clicking makes Mario jump and shows an item; `npm run lint` and `npm run build` pass. The Vercel build is checked after a push.
 - **Result (2026-11-02):** Submodule checked out at `7b45c9d` and moved to `public/mario-item-block` (`.gitmodules` path updated). In the dev server, `/mario-item-block` returns 307 → `/mario-item-block/index.html`; jQuery loads; the HTML, CSS, JS and every image return 200. Mouse down shows Mario jumping with an item (a coin) above the block; mouse up returns him to standing. `npm run lint` is clean and `next build` succeeds. Still to check: the Vercel build clones the submodule (after the next push).
 
-## Step 2: Konami code on the home page ✅ Done
+## Step 2: Konami code on the home page ✅ Done (commit `c5e1522`)
 - **Requirement:** typing ↑↑↓↓←→←→BA on the home page goes to the game.
 - **Why:** restores the old `js/konami.js` behaviour without jQuery.
 - **How:** new client component `src/components/konami-code.tsx` that renders nothing. A `useEffect` adds a `keydown` listener (removed on unmount) comparing `e.key` (lower-cased, so `B`/`b` both count) against `ArrowUp ArrowUp ArrowDown ArrowDown ArrowLeft ArrowRight ArrowLeft ArrowRight b a`. A wrong key resets progress (to 1 if the wrong key is itself `ArrowUp`). On completion, `window.location.assign("/mario-item-block")` — a full page load, since the game is a static file, not a Next.js route. Mounted in `src/app/page.tsx`.
 - **Verify:** in the browser preview, the key sequence navigates to the game; a wrong key mid-sequence doesn't; lint and type checks pass.
 - **Result (2026-11-02):** In the browser preview, ↑↑↓↓←→ x ←→BA (wrong key in the middle) stayed on the home page; ↑↑↓↓←→←→ba opened `/mario-item-block/index.html`, and so did the same with capital B A. No console errors; `tsc --noEmit` passes. Lint flagged `window.location.assign` (rule `no-location-assign-relative-destination`, which assumes the target is a Next.js page). Since the game is a static file that needs a full page load, that one line has an `eslint-disable-next-line` with a comment; lint is now clean.
 
-## Step 3: Subtle hint on the home page ⬜ Not started
+## Step 3: Subtle hint on the home page ✅ Done
 - **Requirement:** a small, muted row of ↑↑↓↓←→←→ B A on the home page, like the old site.
 - **Why:** makes the easter egg discoverable; on phones it's the only way in.
 - **How:** new component `src/components/konami-hint.tsx` using `react-icons` arrows (already a dependency) plus "B" "A" text, styled with the semantic tokens (`text-muted-foreground`, hover `text-foreground`). Recommended: the whole row is a link to `/mario-item-block` with `aria-label="Mario item block game"` and `aria-hidden` glyphs, so it's tappable and accessible. (To confirm at this step: link vs purely decorative.)
 - **Verify:** screenshots in light and dark mode and at mobile width; the hint opens the game; lint passes. Dev server left running for preview.
+- **Result (2026-11-02):** Built as a link (the recommended option; Kevin approved the step without choosing, so it can still change to decorative). `src/components/konami-hint.tsx` is a server component placed under the links/app list in `src/app/page.tsx`: small `text-muted-foreground` arrows plus "B A", `hover:text-foreground`, a focus outline, and a `title` showing the sequence. Checked in the browser: subtle and readable in light and dark mode; at 375px wide it fits (175×24px, no horizontal scroll); its accessible name is "Mario item block game"; clicking it opens `/mario-item-block/index.html`. Lint and `tsc --noEmit` pass.
+
+## Step 4: Keep the URL as `/mario-item-block` ⏳ Awaiting approval
+- **Requirement:** opening the game (Konami code, hint, or typing the address) shows `/mario-item-block` in the address bar, not `/mario-item-block/index.html`.
+- **Why:** Step 1's redirect changes the visible URL. A rewrite alone can't fix that, because the game's relative paths (`css/…`, `images/…`) would resolve at the site root and break (and `/images/` would collide with the site's own folder).
+- **How:**
+  1. `next.config.ts`: remove the `/mario-item-block` redirect.
+  2. New page `src/app/mario-item-block/page.tsx`: centered `<iframe src="/mario-item-block/index.html" title="Mario item block game">`, sized to the game (150×250 plus the game page's default 8px body margin), no border, and a short muted caption ("Click to jump"). Page title "Mario Item Block · Kevin Cho" via `metadata`. The root layout's header (theme toggle) appears automatically. The static files keep working at `/mario-item-block/…`, since `public/mario-item-block` is a folder and doesn't clash with the page's route; to confirm in the build.
+  3. `src/components/konami-code.tsx`: the game is now a Next.js route, so use `useRouter().push("/mario-item-block")` and remove the `eslint-disable` line.
+  4. `src/components/konami-hint.tsx`: use `next/link` `<Link>` instead of `<a>` for client-side navigation.
+  5. `README.md`: update the Project layout line to mention the page.
+- **Verify:** `/mario-item-block` shows the game with the URL unchanged; the game plays inside the iframe; the Konami code and the hint both land on `/mario-item-block`; light/dark and mobile width look right; lint, `tsc --noEmit` and `next build` pass (build lists `/mario-item-block`).
 
 ---
 
@@ -61,3 +74,5 @@ Each step is reviewed and approved on its own before it's built.
 - **2026-11-02** — Step 1 done: game served from `public/mario-item-block` with a redirect from `/mario-item-block`; verified locally.
 - **2026-11-02** — Work moved to a new branch, `mario-item-block`, created from `master`.
 - **2026-11-02** — Step 2 done: `KonamiCode` component on the home page; verified in the browser.
+- **2026-11-02** — Step 3 done: `KonamiHint` link on the home page; verified in light/dark and at mobile width. Remaining: push and check that Vercel's build includes the submodule.
+- **2026-11-02** — Step 4 added: Kevin wants the game's URL to stay `/mario-item-block` (Step 1's redirect showed `/index.html`). Chose a Next.js page with an iframe.
