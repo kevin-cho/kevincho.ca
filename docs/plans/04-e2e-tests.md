@@ -41,7 +41,7 @@ Each step below is reviewed and approved on its own before it's built.
 - **Verify:** `npm run test:e2e` passes. Also check that it doesn't disturb a running `next dev`: Next 16 keeps dev output separate from build output, to confirm at this step. Lint and `tsc --noEmit` pass on the new files.
 - **Result (2026-11-04):** Built as planned with `@playwright/test` 1.64.1 and Chrome Headless Shell 156. `npm run test:e2e` passes the smoke test in about 14s, including the production build. The local output is three lines. With `next dev` running on 3000, a test run left it working (200, no server errors): dev output lives in `.next/dev`, separate from the build. A throwaway test that calls `console.error("boom")` failed with "page errors: boom", so the fixture works; that test was deleted. Lint and `tsc --noEmit` pass.
 
-## Step 2: Home page tests (`e2e/home.spec.ts`) ✅ Done (not committed yet)
+## Step 2: Home page tests (`e2e/home.spec.ts`) ✅ Done (commit `b591368`)
 - **Requirement:** the home page's behaviour is covered.
 - **Why:** the most-visited page, and the theme toggle has the trickiest logic (saved choice vs OS setting).
 - **How:** tests for:
@@ -62,7 +62,7 @@ Each step below is reviewed and approved on its own before it's built.
 
   The theme tests set the OS preference with `page.emulateMedia`. The apps test imports `apps` through the `@/` path alias, which Playwright reads from `tsconfig.json`. As a deliberate break, changing the GitHub link to `kevin-chox` failed "links point to the right places" with the expected and received URLs; the change was reverted. Lint and `tsc --noEmit` pass.
 
-## Step 3: Konami code and game page tests (`e2e/mario-item-block.spec.ts`)
+## Step 3: Konami code and game page tests (`e2e/mario-item-block.spec.ts`) ✅ Done (not committed yet)
 - **Requirement:** the easter egg and the game page are covered.
 - **Why:** these are Plan 03's features, and they're easy to break by accident (iframe paths, submodule, router).
 - **How:** tests for:
@@ -75,6 +75,11 @@ Each step below is reviewed and approved on its own before it's built.
   - **Back arrow:** "Back to home" lands on `/`.
 - **Note:** the game loads jQuery from Google's CDN, so these tests need network access (fine locally and in GitHub Actions).
 - **Verify:** the full suite passes. A deliberate break (e.g. a wrong iframe `src`) is caught, then reverted.
+- **Result (2026-11-04):** 6 tests, as planned.
+  - The game test asserts on `#gameSprite` (class `stand`/`jump`, the jump image) and `#gameItem` (class `land`/`float`, no longer the blank `spacer.png`), the selectors from `js/mario.js`.
+  - The Konami tests wait for `networkidle` first, because the key listener only exists once React hydrates. The wrong-key test waits 500ms before checking that the URL stayed `/`, since a navigation that never happens can't be awaited.
+
+  The full suite (14 tests) passes in about 15s plus the build. The game tests passed 30 out of 30 runs with `--repeat-each=5`, so no flakiness. As a deliberate break, the iframe `src` was set to `indx.html`. The game test failed (elements not found), and the other game page tests failed through the fixture (the 404 shows up as a console error). The change was reverted. Lint and `tsc --noEmit` pass.
 
 ## Step 4: Make the tests the default way to verify
 - **Requirement:** future sessions verify changes with `npm run test:e2e` first. The browser pane is kept for one visual check of new or changed UI.
@@ -104,3 +109,4 @@ Each step below is reviewed and approved on its own before it's built.
 - **2026-11-04** — Plan created. Decided: production build on port 3100, Chromium only, no screenshot baselines yet, GitHub Actions as the final step.
 - **2026-11-04** — Branch `e2e-tests` created. Step 1 done: Playwright installed and configured with a smoke test and an error-catching fixture; verified.
 - **2026-11-04** — Step 2 done: home page tests (identity, links, apps, theme, hint, mobile); a deliberate break was caught.
+- **2026-11-04** — Step 3 done: Konami code, game page, static files and back arrow tests; checked for flakiness (30/30) and a deliberate break was caught.
