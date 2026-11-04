@@ -1,6 +1,6 @@
 # Plan 04: End-to-end UI tests with Playwright
 
-**Status:** 🚧 In progress (started 2026-11-04) · **Branch:** `e2e-tests` (from `master`)
+**Status:** ✅ All steps done (2026-11-04); PR #17 open, waiting to merge · **Branch:** `e2e-tests` (from `master`)
 
 ## Context
 To check each change so far, Claude has driven the browser pane: screenshots (about 1–2k tokens each), accessibility-tree reads and console checks, all repeated from scratch every time. That costs a lot of tokens and leaves nothing behind. Earlier features (Konami code, hint, `/mario-item-block` URL, back arrow, theme toggle) are never re-checked.
@@ -95,7 +95,7 @@ Each step below is reviewed and approved on its own before it's built.
   - **Memory:** no auto-memory note covered verification, so none was changed. A new one would only repeat `CLAUDE.md`, which is checked in and loads every session. "Keep the dev server running" still holds.
   - **Not verified yet:** whether a new session picks up `CLAUDE.md`. This session loaded its instructions before the file existed; to check at the start of the next session.
 
-## Step 5: GitHub Actions workflow (`.github/workflows/e2e.yml`) 🚧 Built, waiting for the first run on GitHub
+## Step 5: GitHub Actions workflow (`.github/workflows/e2e.yml`) ✅ Done (commit `dacc322`, PR #17)
 - **Requirement:** lint and E2E tests run on every PR and on pushes to `master`.
 - **Why:** catches breakage before merge, without relying on anyone remembering to run the tests.
 - **How:**
@@ -111,7 +111,7 @@ Each step below is reviewed and approved on its own before it's built.
   - **Concurrency:** a new push cancels the run still in progress.
   - **Timeout:** 15 minutes.
 
-  Locally, the YAML parses to the expected steps, and `CI=1 npx playwright test` passes all 14 tests with the GitHub summary annotation. Still to do: push the branch and open a PR (with Kevin's go-ahead), and confirm the check passes on GitHub.
+  Locally, the YAML parses to the expected steps, and `CI=1 npx playwright test` passes all 14 tests with the GitHub summary annotation. Pushed `e2e-tests` and opened [PR #17](https://github.com/kevin-cho/kevincho.ca/pull/17) with Kevin's go-ahead. On GitHub, the `test` job passed in 1m4s ([run](https://github.com/kevin-cho/kevincho.ca/actions/runs/41906710067)), next to Vercel's checks. Auto-fix is on for the PR. Left for Kevin: whether to make `test` a required check, and merging.
 
 ---
 
@@ -122,3 +122,5 @@ Each step below is reviewed and approved on its own before it's built.
 - **2026-11-04** — Step 3 done: Konami code, game page, static files and back arrow tests; checked for flakiness (30/30) and a deliberate break was caught.
 - **2026-11-04** — Step 4 done: project `CLAUDE.md` makes `npm run test:e2e` the default check; the browser pane is kept for visual checks. To confirm in the next session that it loads.
 - **2026-11-04** — Step 5 built: `.github/workflows/e2e.yml` runs lint and the e2e tests on PRs and pushes to `master`; checked locally in CI mode. Waiting to push and open a PR.
+- **2026-11-04** — Step 5 committed (`dacc322`); pushed `e2e-tests` and opened PR #17. Vercel's check passed; the new workflow's first run was still in progress.
+- **2026-11-04** — The workflow's first run passed on PR #17 (1m4s), so Step 5 is done. Auto-fix turned on for the PR.
