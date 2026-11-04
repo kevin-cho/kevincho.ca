@@ -37,6 +37,18 @@ npm run lint
 
 If a CSS change doesn't show up in the dev server, stop it, delete the `.next/` folder, and start it again.
 
+## Tests
+
+End-to-end tests use [Playwright](https://playwright.dev) and live in `e2e/`. They run in headless Chromium against a fresh production build, which Playwright builds and starts on port 3100.
+
+```bash
+npx playwright install chromium   # once, downloads the test browser
+npm run test:e2e                  # build, start, run the tests
+npx playwright test --ui          # step through tests in Playwright's UI
+```
+
+Every test also fails if the page logs an error (see `e2e/fixtures.ts`).
+
 ## Project layout
 
 - `src/app/` — pages, root layout, global styles (`globals.css` defines the light/dark color roles)
@@ -44,4 +56,5 @@ If a CSS change doesn't show up in the dev server, stop it, delete the `.next/` 
 - `src/data/apps.ts` — the apps listed on the home page
 - `public/` — static files (resume PDF, photo)
 - `public/mario-item-block/` — git submodule: the [Mario item block](https://github.com/kevin-cho/mario-item-block) game, embedded by the page at `src/app/mario-item-block/` (`/mario-item-block`)
+- `e2e/` — Playwright end-to-end tests
 - `docs/plans/` — step-by-step plans and their change logs
