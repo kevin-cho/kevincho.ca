@@ -22,7 +22,7 @@ Each step below is reviewed and approved on its own before it's built.
 
 ---
 
-## Step 1: Install and configure Playwright ✅ Done (not committed yet)
+## Step 1: Install and configure Playwright ✅ Done (commit `9365bf0`)
 - **Requirement:** `npm run test:e2e` builds the site, starts it, runs the tests in headless Chromium and prints a short pass/fail summary.
 - **Why:** the foundation for everything else, with one command for both of us to run.
 - **How:**
@@ -41,7 +41,7 @@ Each step below is reviewed and approved on its own before it's built.
 - **Verify:** `npm run test:e2e` passes. Also check that it doesn't disturb a running `next dev`: Next 16 keeps dev output separate from build output, to confirm at this step. Lint and `tsc --noEmit` pass on the new files.
 - **Result (2026-11-04):** Built as planned with `@playwright/test` 1.64.1 and Chrome Headless Shell 156. `npm run test:e2e` passes the smoke test in about 14s, including the production build. The local output is three lines. With `next dev` running on 3000, a test run left it working (200, no server errors): dev output lives in `.next/dev`, separate from the build. A throwaway test that calls `console.error("boom")` failed with "page errors: boom", so the fixture works; that test was deleted. Lint and `tsc --noEmit` pass.
 
-## Step 2: Home page tests (`e2e/home.spec.ts`)
+## Step 2: Home page tests (`e2e/home.spec.ts`) ✅ Done (not committed yet)
 - **Requirement:** the home page's behaviour is covered.
 - **Why:** the most-visited page, and the theme toggle has the trickiest logic (saved choice vs OS setting).
 - **How:** tests for:
@@ -55,6 +55,12 @@ Each step below is reviewed and approved on its own before it's built.
   - **Konami hint:** clicking the link named "Mario item block game" lands on `/mario-item-block`.
   - **Mobile:** at 375px wide there's no horizontal scroll.
 - **Verify:** the suite passes. To prove the tests can fail, temporarily break one thing (e.g. a wrong `href`) and watch the test catch it, then revert.
+- **Result (2026-11-04):** 8 tests, all passing in about 12s plus the build. Additions to the plan:
+  - The page title check moved here from `e2e/smoke.spec.ts`, which was deleted as redundant.
+  - The resume check also confirms the `application/pdf` content type.
+  - An extra theme test checks that a saved light choice wins over a dark OS setting.
+
+  The theme tests set the OS preference with `page.emulateMedia`. The apps test imports `apps` through the `@/` path alias, which Playwright reads from `tsconfig.json`. As a deliberate break, changing the GitHub link to `kevin-chox` failed "links point to the right places" with the expected and received URLs; the change was reverted. Lint and `tsc --noEmit` pass.
 
 ## Step 3: Konami code and game page tests (`e2e/mario-item-block.spec.ts`)
 - **Requirement:** the easter egg and the game page are covered.
@@ -97,3 +103,4 @@ Each step below is reviewed and approved on its own before it's built.
 ## Change log
 - **2026-11-04** — Plan created. Decided: production build on port 3100, Chromium only, no screenshot baselines yet, GitHub Actions as the final step.
 - **2026-11-04** — Branch `e2e-tests` created. Step 1 done: Playwright installed and configured with a smoke test and an error-catching fixture; verified.
+- **2026-11-04** — Step 2 done: home page tests (identity, links, apps, theme, hint, mobile); a deliberate break was caught.
