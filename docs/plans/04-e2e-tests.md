@@ -81,7 +81,7 @@ Each step below is reviewed and approved on its own before it's built.
 
   The full suite (14 tests) passes in about 15s plus the build. The game tests passed 30 out of 30 runs with `--repeat-each=5`, so no flakiness. As a deliberate break, the iframe `src` was set to `indx.html`. The game test failed (elements not found), and the other game page tests failed through the fixture (the 404 shows up as a console error). The change was reverted. Lint and `tsc --noEmit` pass.
 
-## Step 4: Make the tests the default way to verify ✅ Done (not committed yet)
+## Step 4: Make the tests the default way to verify ✅ Done (commit `fa818fa`)
 - **Requirement:** future sessions verify changes with `npm run test:e2e` first. The browser pane is kept for one visual check of new or changed UI.
 - **Why:** this is where the token savings come from. Without it, sessions fall back to screenshots.
 - **How:** add a checked-in project `CLAUDE.md`. Claude Code loads it in every session, which is how project instructions are shared, and it can import `AGENTS.md` with `@AGENTS.md`. The new section, "Verifying changes", says:
@@ -95,7 +95,7 @@ Each step below is reviewed and approved on its own before it's built.
   - **Memory:** no auto-memory note covered verification, so none was changed. A new one would only repeat `CLAUDE.md`, which is checked in and loads every session. "Keep the dev server running" still holds.
   - **Not verified yet:** whether a new session picks up `CLAUDE.md`. This session loaded its instructions before the file existed; to check at the start of the next session.
 
-## Step 5: GitHub Actions workflow (`.github/workflows/e2e.yml`)
+## Step 5: GitHub Actions workflow (`.github/workflows/e2e.yml`) 🚧 Built, waiting for the first run on GitHub
 - **Requirement:** lint and E2E tests run on every PR and on pushes to `master`.
 - **Why:** catches breakage before merge, without relying on anyone remembering to run the tests.
 - **How:**
@@ -105,6 +105,13 @@ Each step below is reviewed and approved on its own before it's built.
   - Then `npm ci`, `npx playwright install --with-deps chromium`, `npm run lint` and `npm run test:e2e`.
   - Upload `playwright-report/` and the traces as an artifact when a job fails.
 - **Verify:** push the branch and open a PR (both only with your go-ahead). The new check passes next to Vercel's. Then decide whether to make it a required check in branch protection; that setting is yours to change.
+- **Result so far (2026-11-04):** Built as planned, using `actions/checkout`, `actions/setup-node` and `actions/upload-artifact` at v7 (the latest releases). Changes and additions:
+  - **Upload:** the failure upload is `test-results/` (the traces). With the `line` reporter, Playwright writes no `playwright-report/`.
+  - **Permissions:** read-only `contents`.
+  - **Concurrency:** a new push cancels the run still in progress.
+  - **Timeout:** 15 minutes.
+
+  Locally, the YAML parses to the expected steps, and `CI=1 npx playwright test` passes all 14 tests with the GitHub summary annotation. Still to do: push the branch and open a PR (with Kevin's go-ahead), and confirm the check passes on GitHub.
 
 ---
 
@@ -114,3 +121,4 @@ Each step below is reviewed and approved on its own before it's built.
 - **2026-11-04** — Step 2 done: home page tests (identity, links, apps, theme, hint, mobile); a deliberate break was caught.
 - **2026-11-04** — Step 3 done: Konami code, game page, static files and back arrow tests; checked for flakiness (30/30) and a deliberate break was caught.
 - **2026-11-04** — Step 4 done: project `CLAUDE.md` makes `npm run test:e2e` the default check; the browser pane is kept for visual checks. To confirm in the next session that it loads.
+- **2026-11-04** — Step 5 built: `.github/workflows/e2e.yml` runs lint and the e2e tests on PRs and pushes to `master`; checked locally in CI mode. Waiting to push and open a PR.
