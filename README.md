@@ -12,7 +12,7 @@ Built with [Next.js](https://nextjs.org) (App Router), React, TypeScript, and Ta
 ## Adding an app
 
 1. In the app's repo, set its base path to its URL path (for Next.js, `basePath: "/todo"` in `next.config.ts`), and deploy it as its own Vercel project.
-2. In this repo, add a rewrite in `next.config.ts` that sends `/todo` and `/todo/*` to the app's Vercel deployment. (Not set up yet; it will be added with the first app.)
+2. In this repo, add rewrites in `next.config.ts` that send `/todo` and `/todo/:path+` to the app's public production URL, read from an env var (see the `MAPLESTORY_URL` rewrites for the pattern). Set the env var in this Vercel project for Production and Preview. It's read at build time, so redeploy afterwards.
 3. Add an entry to [`src/data/apps.ts`](src/data/apps.ts):
 
    ```ts
@@ -20,6 +20,16 @@ Built with [Next.js](https://nextjs.org) (App Router), React, TypeScript, and Ta
    ```
 
 App paths must not clash with this site's own pages.
+
+Link to an app with a plain `<a>`, not `<Link>`: moving between apps is a full page load.
+
+### Current apps
+
+| Path | Repo | Env var | Production URL |
+|---|---|---|---|
+| `/maplestory` | [`kevin-cho/maplestory-app`](https://github.com/kevin-cho/maplestory-app) | `MAPLESTORY_URL` | `https://maplestory-app.vercel.app` |
+
+Without the env var, the app's path is a 404 on this site, so builds and tests don't depend on the app.
 
 The home page shows an "Apps" section as soon as the list has at least one entry.
 
@@ -36,6 +46,12 @@ npm run lint
 ```
 
 If a CSS change doesn't show up in the dev server, stop it, delete the `.next/` folder, and start it again.
+
+To see an app through this site locally, run the app's dev server too (the MapleStory app runs on port 3002) and point this site at it in `.env.local` (gitignored), then restart `npm run dev`:
+
+```bash
+MAPLESTORY_URL=http://localhost:3002
+```
 
 ## Tests
 
