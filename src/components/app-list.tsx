@@ -7,7 +7,7 @@ export function AppList() {
   }
 
   return (
-    <section aria-labelledby="apps-heading" className="w-full max-w-2xl">
+    <section aria-labelledby="apps-heading" className="w-full max-w-2xl my-4">
       <h2 id="apps-heading" className="mb-4 text-xl font-semibold">
         Apps
       </h2>

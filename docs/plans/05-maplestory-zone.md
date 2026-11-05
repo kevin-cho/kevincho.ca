@@ -51,9 +51,23 @@ The README's "Adding an app" section describes the Multi-Zones setup, but the re
     - Kevin sets `MAPLESTORY_URL` in Vercel.
     - Commit and push the branch.
     - Check the preview, then merge and check production.
+- **Preview check (2026-11-04, commit `29c8103`):** Kevin set `MAPLESTORY_URL` (plain config, Production + Preview), and the preview built with no errors. On `kevincho-portal-git-maplestory-zone-kevin-cho.vercel.app`, after Kevin signed in to Vercel in the browser pane:
+  - **What works:**
+    - The home page lists the app, and the card opens `/maplestory`, served by the zone. All its files load from the portal's origin.
+    - Clicking a tool card does a soft navigation to `/maplestory/damage`.
+  - **What doesn't:** every segment prefetch returns **404**. These are the zone's `<Link>` prefetches carrying `Next-Router-Segment-Prefetch`, which `partialPrefetching` turns on. Each app page logs several console 404s, and navigation isn't prefetched.
+  - **Cause, confirmed with requests:** the segment mapping runs twice.
+    1. The portal's Vercel routing maps the header to `/maplestory/damage.segments/_tree.segment.rsc`.
+    2. It forwards that path to the zone with the header still set, so the zone maps it again and returns 404.
+  - **The evidence:**
+    - Sent directly to the zone, the same request returns 200 (`x-matched-path: /damage.segments/_tree.segment.rsc`).
+    - The zone serves the already-mapped path with 200 without the header, and 404 with it.
+    - Plain RSC requests (`RSC: 1`, with or without `Next-Router-Prefetch`) return 200 through the portal.
+    - Local `next dev` doesn't do this mapping, which is why the local check passed.
 
 ---
 
 ## Change log
 - **2026-11-04**: Plan created on branch `maplestory-zone`, from the maplestory-app plan's Step 6.
 - **2026-11-04**: Step 1 built: rewrites, the app entry and the README. Verified locally through the portal dev server, and lint and e2e pass. Waiting on the Vercel env var.
+- **2026-11-04**: Committed and pushed `29c8103`. The preview works, but the zone's segment prefetches return 404 through the portal (double segment mapping; see Step 1). Choosing a fix with Kevin.
