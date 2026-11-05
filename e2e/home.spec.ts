@@ -104,6 +104,17 @@ test.describe("theme", () => {
   });
 });
 
+test("the Konami hint sits in a footer at the bottom of the page", async ({ page }) => {
+  const footer = page.getByRole("contentinfo");
+  await expect(footer.getByRole("link", { name: "Mario item block game" })).toBeVisible();
+
+  // The footer's bottom edge is the page's bottom edge (the window's, when the content is short)
+  const gap = await footer.evaluate(
+    (el) => document.documentElement.scrollHeight - (el.getBoundingClientRect().bottom + window.scrollY),
+  );
+  expect(Math.abs(gap)).toBeLessThan(1);
+});
+
 test("the Konami hint opens the game", async ({ page }) => {
   await page.getByRole("link", { name: "Mario item block game" }).click();
   await expect(page).toHaveURL("/mario-item-block");
