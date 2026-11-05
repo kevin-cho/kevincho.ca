@@ -10,14 +10,14 @@ The README's "Adding an app" section describes the Multi-Zones setup, but the re
 ### Decisions
 | Decision | Choice | Why |
 |---|---|---|
-| Routing | `rewrites()` in `next.config.ts`: `/maplestory` and `/maplestory/:path+` → the zone's URL with the same path | This is the setup the Next.js multi-zones guide uses (`node_modules/next/dist/docs/01-app/02-guides/multi-zones.md`). The zone uses `basePath` rather than `assetPrefix`, so its `_next` assets are already under `/maplestory/` and need no extra rule. Plain rewrites run after this site's pages and files, and none of those use `/maplestory`. |
+| Routing | `rewrites()` in `next.config.ts`, as **`beforeFiles`**: `/maplestory` and `/maplestory/:path+` → the zone's URL with the same path | This is the setup the Next.js multi-zones guide uses (`node_modules/next/dist/docs/01-app/02-guides/multi-zones.md`). The zone uses `basePath` rather than `assetPrefix`, so its `_next` assets are already under `/maplestory/` and need no extra rule. They must be `beforeFiles`: as plain (afterFiles) rewrites, the zone's segment prefetches 404ed on Vercel (see Step 1). Kevin chose to try this over turning off `partialPrefetching` in the zone, 2026-11-04. |
 | Zone URL | Env var `MAPLESTORY_URL`, with the rewrites skipped when it's unset | Production and previews point at `https://maplestory-app.vercel.app`, and local dev can point at `http://localhost:3002`. Builds and CI don't need the zone. Decided in the app's plan, 2026-11-04. |
 | Listing | An entry in `src/data/apps.ts` | The home page's "Apps" section appears once the list has an entry. `AppList` already uses a plain `<a>`, which cross-zone links need. |
 | Tests | The existing home test "lists the apps…" already checks each app's link and `href` | It covers the new entry with no new test. The zone itself is tested in its own repo. |
 
 ---
 
-## Step 1: Rewrites, app entry and README ✅ Built and verified locally (not committed yet)
+## Step 1: Rewrites, app entry and README ✅ Done on the preview (commits `29c8103`, `a5f2d8a`); not merged yet
 - **Requirement:**
   - `kevincho.ca/maplestory` and every path under it serve the zone.
   - The home page lists "MapleStory Classic Tools".
@@ -64,6 +64,17 @@ The README's "Adding an app" section describes the Multi-Zones setup, but the re
     - The zone serves the already-mapped path with 200 without the header, and 404 with it.
     - Plain RSC requests (`RSC: 1`, with or without `Next-Router-Prefetch`) return 200 through the portal.
     - Local `next dev` doesn't do this mapping, which is why the local check passed.
+  - **Options:** Kevin chose to try `beforeFiles` rewrites first, keeping both apps' config identical. The alternatives were `partialPrefetching: false` in the zone (a verified stopgap that goes away in the next major) or shipping with the 404s.
+- **Fix (commit `a5f2d8a`):** moved the rewrites to `beforeFiles`, so requests are forwarded before the portal's routing maps them. Lint, `tsc` and e2e (14) pass, and the local proxy still works.
+- **Preview recheck (2026-11-04):**
+  - The segment prefetch through the portal now returns **200**, with `x-matched-path: /damage.segments/_tree.segment.rsc`, mapped once, by the zone.
+  - Every `_rsc` prefetch on `/maplestory` returns 200, and no resources fail.
+  - The back arrow returns to the portal home with no failed requests.
+  - The portal's `/mario-item-block` still returns 200.
+- **Remaining:**
+  - Open a PR and let CI run.
+  - Merge into `master`.
+  - Check `https://kevincho.ca/maplestory` in production.
 
 ---
 
@@ -71,3 +82,4 @@ The README's "Adding an app" section describes the Multi-Zones setup, but the re
 - **2026-11-04**: Plan created on branch `maplestory-zone`, from the maplestory-app plan's Step 6.
 - **2026-11-04**: Step 1 built: rewrites, the app entry and the README. Verified locally through the portal dev server, and lint and e2e pass. Waiting on the Vercel env var.
 - **2026-11-04**: Committed and pushed `29c8103`. The preview works, but the zone's segment prefetches return 404 through the portal (double segment mapping; see Step 1). Choosing a fix with Kevin.
+- **2026-11-04**: Kevin chose to try `beforeFiles`. Committed and pushed `a5f2d8a`. On the preview, the prefetches now return 200 and nothing fails. Next: PR, merge, production check.
