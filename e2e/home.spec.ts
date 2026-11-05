@@ -57,6 +57,17 @@ test("lists the apps, or hides the section while there are none", async ({ page 
   }
 });
 
+test("a lone or odd last app card is centered at half width", async ({ page }) => {
+  test.skip(apps.length % 2 === 0, "only applies to an odd number of apps");
+
+  const list = await page.getByRole("region", { name: "Apps" }).getByRole("list").boundingBox();
+  const last = await page.getByRole("region", { name: "Apps" }).getByRole("listitem").last().boundingBox();
+  if (!list || !last) throw new Error("app list not rendered");
+
+  expect(Math.abs(last.x + last.width / 2 - (list.x + list.width / 2))).toBeLessThan(1);
+  expect(last.width).toBeLessThan(list.width / 2);
+});
+
 test.describe("theme", () => {
   const html = (page: import("@playwright/test").Page) => page.locator("html");
 

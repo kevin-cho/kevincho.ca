@@ -11,9 +11,11 @@ export function AppList() {
       <h2 id="apps-heading" className="mb-4 text-xl font-semibold">
         Apps
       </h2>
-      <ul className="grid gap-3 sm:grid-cols-2">
+      {/* Two per row from sm up; flex-wrap + justify-center centers a lone or odd last card.
+          Each card is half the row minus half the 0.75rem gap. */}
+      <ul className="flex flex-wrap justify-center gap-3">
         {apps.map((app) => (
-          <li key={app.url}>
+          <li key={app.url} className="w-full sm:w-[calc(50%-0.375rem)]">
             <a
               href={app.url}
               className="block h-full rounded-xl border border-border p-4 text-left transition-colors hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
