@@ -1,6 +1,6 @@
 # Plan 05: Serve the MapleStory tools app at kevincho.ca/maplestory
 
-**Status:** 🚧 In progress (2026-11-04) · **Branch:** `maplestory-zone` (from `master`) · **Started:** 2026-11-04
+**Status:** ✅ Done (2026-11-04): **live on kevincho.ca/maplestory** (PR #18, merge `e737e62`) · **Branch:** `maplestory-zone` (merged into `master` and deleted) · **Started:** 2026-11-04
 
 ## Context
 [`kevin-cho/maplestory-app`](https://github.com/kevin-cho/maplestory-app) is a separate Next.js app (MapleStory Classic calculators and simulators), built as a zone for this portal: `basePath: "/maplestory"`, the same Next.js version, and a copy of this site's theme files. It's deployed as its own Vercel project and is public at `https://maplestory-app.vercel.app/maplestory`. Its team domain, `maplestory-app-kevin-cho.vercel.app`, is behind a Vercel login, so it can't be used here.
@@ -17,7 +17,7 @@ The README's "Adding an app" section describes the Multi-Zones setup, but the re
 
 ---
 
-## Step 1: Rewrites, app entry and README ✅ Done on the preview (commits `29c8103`, `a5f2d8a`); not merged yet
+## Step 1: Rewrites, app entry and README ✅ Done (commits `29c8103`, `a5f2d8a`, `81ad3a8`; merge `e737e62`)
 - **Requirement:**
   - `kevincho.ca/maplestory` and every path under it serve the zone.
   - The home page lists "MapleStory Classic Tools".
@@ -71,10 +71,13 @@ The README's "Adding an app" section describes the Multi-Zones setup, but the re
   - Every `_rsc` prefetch on `/maplestory` returns 200, and no resources fail.
   - The back arrow returns to the portal home with no failed requests.
   - The portal's `/mario-item-block` still returns 200.
-- **Remaining:**
-  - Open a PR and let CI run.
-  - Merge into `master`.
-  - Check `https://kevincho.ca/maplestory` in production.
+- **Production (2026-11-04):**
+  - **Merge:** PR #18's three checks passed (lint + e2e, and Vercel). It was merged with a merge commit (`e737e62`), the branch was deleted, and Vercel's production deploy succeeded.
+  - **Requests:** on `https://kevincho.ca`, `/`, `/maplestory`, `/maplestory/damage` and `/mario-item-block` return 200. A segment prefetch returns 200, mapped once, by the zone.
+  - **Browser:**
+    - The home page card opens `kevincho.ca/maplestory`.
+    - All of the zone's files load from kevincho.ca, all `_rsc` prefetches return 200, and nothing fails.
+    - Switching to light mode in the zone, then pressing the back arrow, lands on the portal home in light mode.
 
 ---
 
@@ -83,3 +86,4 @@ The README's "Adding an app" section describes the Multi-Zones setup, but the re
 - **2026-11-04**: Step 1 built: rewrites, the app entry and the README. Verified locally through the portal dev server, and lint and e2e pass. Waiting on the Vercel env var.
 - **2026-11-04**: Committed and pushed `29c8103`. The preview works, but the zone's segment prefetches return 404 through the portal (double segment mapping; see Step 1). Choosing a fix with Kevin.
 - **2026-11-04**: Kevin chose to try `beforeFiles`. Committed and pushed `a5f2d8a`. On the preview, the prefetches now return 200 and nothing fails. Next: PR, merge, production check.
+- **2026-11-04**: Opened PR #18. The checks passed, and Kevin approved merging once they did. Merged (`e737e62`) and the branch deleted. Production verified on kevincho.ca/maplestory. Plan 05 complete.
